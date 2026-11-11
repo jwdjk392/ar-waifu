@@ -4,8 +4,19 @@ using UnityEngine.XR.ARSubsystems;
 using System.Collections.Generic;
 using UnityEngine.InputSystem.EnhancedTouch;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
+using System;
 
-public class ARTapToPlace : MonoBehaviour
+[Serializable]
+public enum CharacterMotion
+{
+    Idle,
+    Thinking,
+    Talking,
+    Waving,
+    Fainting
+}
+
+public class ARModelManager : MonoBehaviour
 {
     public ARRaycastManager raycastManager;
     public ARPlaneManager planeManager;
@@ -13,7 +24,7 @@ public class ARTapToPlace : MonoBehaviour
     private readonly List<ARRaycastHit> hits = new List<ARRaycastHit>();
     private bool placingState = false;
     private GameObject objectToPlace = null;
-    private GameObject placedModel = null;
+    public GameObject currentModel = null;
     void OnEnable()
     {
         EnhancedTouchSupport.Enable();
@@ -43,9 +54,8 @@ public class ARTapToPlace : MonoBehaviour
         {
             Pose hitPose = hits[0].pose;
             Debug.Log("RAYCASTED!" + hitPose);
-            placedModel = Instantiate(objectToPlace, hitPose.position, hitPose.rotation);
-            //placedModel.transform.localScale = objectToPlace.transform.localScale ;
-            placedModel.transform.localRotation = Quaternion.Euler(0, 180, 0);
+            currentModel = Instantiate(objectToPlace, hitPose.position, hitPose.rotation);
+            currentModel.transform.localRotation = Quaternion.Euler(0, 180, 0);
             placingState = false;
             SetVisible(false);
             Debug.Log("Placed!");
@@ -64,26 +74,27 @@ public class ARTapToPlace : MonoBehaviour
             SetPlaneVisible(plane, isPlaneVisible);
         }
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
     
-    public void placeModel(CharacterData data)
+    public void PlaceModel(CharacterData data)
     {
+        ClearModel();
         placingState = true;
         objectToPlace = data.model;
         SetVisible(true);
         Debug.Log("Waiting Placement...");
     }
 
-    public void clearModel()
+    public void ClearModel()
     {
-        if (placedModel == null) return;
-        Destroy(placedModel);
+        if (currentModel == null) return;
+        Destroy(currentModel);
+        currentModel = null;
         Debug.Log("Model cleared.");
+    }
+
+    public void ChangeModelScale(float scale)
+    {
+        currentModel.transform.localScale = new Vector3(scale, scale, scale);
     }
 
     private void SetPlaneVisible(ARPlane plane, bool visible)
@@ -102,5 +113,11 @@ public class ARTapToPlace : MonoBehaviour
         {
             SetPlaneVisible(plane, visible);
         }
+    }
+
+    public void SetAnimation(CharacterMotion motion)
+    {
+        if (currentModel == null) return;
+        currentModel.GetComponent<Animator>().SetInteger("motion", (int)motion);
     }
 }
