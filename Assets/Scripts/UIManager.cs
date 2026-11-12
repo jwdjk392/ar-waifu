@@ -6,6 +6,7 @@ public class UIManager : MonoBehaviour
 {
     [SerializeField] AIManager aIManager;
     [SerializeField] GameManager gameManager;
+    [SerializeField] ARModelManager aRModelManager;
     [SerializeField] GameObject historyPanel;
     [SerializeField] TextMeshProUGUI historyTextBox;
     [SerializeField] Button sendMessageButton;
@@ -15,6 +16,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] Button setAIServerButton;
     [SerializeField] TMP_InputField aiServerAddressField;
     [SerializeField] TMP_InputField aiModelInputField;
+    [SerializeField] Slider scaleSlider;
     
     private string history;
 
@@ -25,6 +27,7 @@ public class UIManager : MonoBehaviour
         toggleHistoryButton.onClick.AddListener(ToggleHistoryPanel);
         placeModelButton.onClick.AddListener(PlaceModelButtonClicked);
         setAIServerButton.onClick.AddListener(SetAIServerButtonClicked);
+        scaleSlider.onValueChanged.AddListener(delegate { ScaleSliderValueChanged(); });
         historyTextBox.text = "";
     }
 
@@ -68,5 +71,10 @@ public class UIManager : MonoBehaviour
         aIManager.endpoint = aiServerAddressField.text;
         aIManager.model = aiModelInputField.text;
         Debug.Log("AI Endpoint set");
+    }
+
+    public void ScaleSliderValueChanged()
+    {
+        aRModelManager.ChangeModelScale(scaleSlider.value);
     }
 }

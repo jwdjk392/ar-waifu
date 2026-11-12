@@ -25,6 +25,7 @@ public class ARModelManager : MonoBehaviour
     private bool placingState = false;
     private GameObject objectToPlace = null;
     public GameObject currentModel = null;
+    private float modelScale = 1f;
     void OnEnable()
     {
         EnhancedTouchSupport.Enable();
@@ -56,6 +57,7 @@ public class ARModelManager : MonoBehaviour
             Debug.Log("RAYCASTED!" + hitPose);
             currentModel = Instantiate(objectToPlace, hitPose.position, hitPose.rotation);
             currentModel.transform.localRotation = Quaternion.Euler(0, 180, 0);
+            ChangeModelScale(modelScale);
             placingState = false;
             SetVisible(false);
             Debug.Log("Placed!");
@@ -94,6 +96,8 @@ public class ARModelManager : MonoBehaviour
 
     public void ChangeModelScale(float scale)
     {
+        if (currentModel == null) return;
+        modelScale = scale;
         currentModel.transform.localScale = new Vector3(scale, scale, scale);
     }
 
